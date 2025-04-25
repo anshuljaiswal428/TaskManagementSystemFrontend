@@ -14,11 +14,12 @@ import ViewTaskDetails from "./pages/User/ViewTaskDetails";
 import PrivateRoute from "./routes/PrivateRoute";
 import UserProvider, { UserContext } from "./context/userContext";
 import { Toaster } from "react-hot-toast";
+import Footer from "./components/Footer"; // ✅ Import Footer
 
 const App = () => {
   return (
     <UserProvider>
-      <div>
+      <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
         <Router>
           <Routes>
             <Route path="/login" element={<Login />} />
@@ -36,16 +37,14 @@ const App = () => {
             <Route element={<PrivateRoute allowedRoles={["admin"]} />}>
               <Route path="/user/dashboard" element={<UserDashboard />} />
               <Route path="/user/tasks" element={<MyTasks />} />
-              <Route
-                path="/user/task-details/:id"
-                element={<ViewTaskDetails />}
-              />
+              <Route path="/user/task-details/:id" element={<ViewTaskDetails />} />
             </Route>
 
-             {/* Default Route */}
+            {/* Default Route */}
             <Route path="/" element={<Root />} />
           </Routes>
         </Router>
+        <Footer /> {/* ✅ Persistent footer */}
       </div>
 
       <Toaster
@@ -65,11 +64,11 @@ export default App;
 const Root = () => {
   const { user, loading } = useContext(UserContext);
 
-  if(loading) return <Outlet />
-  
-  if (!user) {
-    return <Navigate to="/login" />;
-  }
+  if (loading) return <Outlet />;
 
-  return user.role === "admin" ? <Navigate to="/admin/dashboard" /> : <Navigate to="/user/dashboard" />;
+  return !user
+    ? <Navigate to="/login" />
+    : user.role === "admin"
+      ? <Navigate to="/admin/dashboard" />
+      : <Navigate to="/user/dashboard" />;
 };
